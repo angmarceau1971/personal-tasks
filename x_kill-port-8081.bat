@@ -2,7 +2,7 @@
 cls
 echo.
 echo ==========================================
-echo    🔄 Kill Port 8081 and Restart Server
+echo    🔄 Kill Port 8081 and Restart Server --- TEST
 echo ==========================================
 echo.
 
