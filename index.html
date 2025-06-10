@@ -353,10 +353,10 @@
             }
         }
 
-        /* TV Display Optimizations - Ultra compact for large screens */
-        @media (min-width: 1920px) {
+        /* Fire TV and Large Display Detection - Multiple approaches */
+        @media (min-width: 1280px), (min-device-width: 1920px), (-webkit-min-device-pixel-ratio: 2) {
             body::before {
-                content: "1920px+";
+                content: "TV-DETECTED";
                 background: orange;
             }
             
@@ -1460,8 +1460,24 @@
 
         // Auto-scaling for large displays to prevent scrolling
         function autoScaleForTVDisplay() {
-            // Check if we're on a large display (TV)
-            if (window.innerWidth >= 2560 || window.innerHeight >= 1440) {
+            // More aggressive TV detection
+            const isLargeScreen = window.innerWidth >= 1280 || 
+                                 window.screen.width >= 1920 || 
+                                 window.devicePixelRatio >= 2 ||
+                                 navigator.userAgent.includes('AFTT') || // Fire TV
+                                 navigator.userAgent.includes('AFTM'); // Fire TV Stick
+            
+            console.log('TV Detection:', {
+                innerWidth: window.innerWidth,
+                innerHeight: window.innerHeight,
+                screenWidth: window.screen.width,
+                screenHeight: window.screen.height,
+                devicePixelRatio: window.devicePixelRatio,
+                userAgent: navigator.userAgent,
+                isLargeScreen: isLargeScreen
+            });
+            
+            if (isLargeScreen) {
                 setTimeout(() => {
                     const body = document.body;
                     const viewportHeight = window.innerHeight;
