@@ -1,0 +1,11 @@
+# No external dependencies required
+# The task dashboard only uses Python standard library modules:
+# - http.server
+# - socketserver  
+# - json
+# - webbrowser
+# - os
+# - pathlib
+
+# This file is required for Docker build but can be empty
+# since we only use standard library modules 

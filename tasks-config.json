@@ -1,0 +1,171 @@
+{
+  "categories": {
+    "Outdoor": {
+      "color": "#4CAF50",
+      "tasks": [
+        {
+          "id": 1,
+          "title": "Sprinkler Pressure Switch",
+          "description": "Determine if the pressure switch is needed",
+          "priority": "low",
+          "status": "Open"
+        },
+        {
+          "id": 2,
+          "title": "Small Sheds Upgrade",
+          "description": "Paint and Trim to match house",
+          "priority": "low",
+          "status": "Open"
+        },
+        {
+          "id": 3,
+          "title": "Organize Garden Shed",
+          "description": "Make room for lawn mower and other tools",
+          "priority": "low",
+          "status": "Open"
+        },
+        {
+          "id": 4,
+          "title": "Build Ramp to Garden Shed",
+          "description": "Build Ramp",
+          "priority": "low",
+          "status": "Open"
+        }
+      ]
+    },
+    "Mobile Home": {
+      "color": "#2196F3",
+      "tasks": [
+        {
+          "id": 5,
+          "title": "Bathroom Showerhead",
+          "description": "Fix showhead leak",
+          "priority": "medium",
+          "status": "Open"
+        },
+        {
+          "id": 6,
+          "title": "Fix Patio Door Moulding",
+          "description": "Fix moulding on patio door",
+          "priority": "low",
+          "status": "Open"
+        },
+        {
+          "id": 7,
+          "title": "Fix Skirting",
+          "description": "Replace panels near patio door",
+          "priority": "low",
+          "status": "Open"
+        },
+        {
+          "id": 8,
+          "title": "Fix Indoor A/C Leak",
+          "description": "Something is leaking and causing mold at bottom",
+          "priority": "high",
+          "status": "Open"
+        }
+      ]
+    },
+    "Coach": {
+      "color": "#9C27B0",
+      "tasks": [
+        {
+          "id": 9,
+          "title": "Underbay Doors",
+          "description": "Bring coach back to painter to fix underbay doors paint job",
+          "priority": "high",
+          "status": "Open"
+        },
+        {
+          "id": 10,
+          "title": "Service Aqua Hot",
+          "description": "Order Kit and Service",
+          "priority": "high",
+          "status": "Open"
+        },
+        {
+          "id": 11,
+          "title": "Fix Front Passenger Seat",
+          "description": "Fix seat",
+          "priority": "high",
+          "status": "Open"
+        },
+        {
+          "id": 12,
+          "title": "Order REV Parts for Coach",
+          "description": "Window, Door handle, moulding",
+          "priority": "high",
+          "status": "Closed"
+        },
+        {
+          "id": 13,
+          "title": "Install Door Handle",
+          "description": "Once part is received, install door handle",
+          "priority": "high",
+          "status": "Open"
+        },
+        {
+          "id": 14,
+          "title": "Install Window",
+          "description": "Once part is received, install window",
+          "priority": "high",
+          "status": "Open"
+        },
+        {
+          "id": 15,
+          "title": "Install Door Moulding",
+          "description": "Once part is received, install moulding",
+          "priority": "high",
+          "status": "Open"
+        },
+        {
+          "id": 20,
+          "title": "Service Coach",
+          "description": "Freightliner Service",
+          "priority": "high",
+          "status": "Open"
+        },
+        {
+          "id": 21,
+          "title": "Bent Jack Fix",
+          "description": "Fix the bent jack passenger side front",
+          "priority": "medium",
+          "status": "Open"
+        }
+      ]
+    },
+    "Misc Items": {
+      "color": "#607D8B",
+      "tasks": [
+        {
+          "id": 16,
+          "title": "Fix Wood Splitter",
+          "description": "Fix the wood splitter",
+          "priority": "low",
+          "status": "Open"
+        },
+        {
+          "id": 17,
+          "title": "Fix Patio Gutters",
+          "description": "Fix the gutters",
+          "priority": "low",
+          "status": "Open"
+        },
+        {
+          "id": 18,
+          "title": "Complete Run for Ethernet Cable",
+          "description": "Complete run for ethernet cable",
+          "priority": "low",
+          "status": "Open"
+        },
+        {
+          "id": 19,
+          "title": "Order 2 loads of Millings",
+          "description": "Order 2 loads of Millings",
+          "priority": "low",
+          "status": "Open"
+        }
+      ]
+    }
+  }
+} 
