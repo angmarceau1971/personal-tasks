@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Household Task Dashboard</title>
+    <!-- Cache busting timestamp: 2025-01-25-v2.1 -->
     <style>
         * {
             margin: 0;
@@ -16,6 +17,18 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
+        }
+        
+        body::before {
+            content: "DEFAULT";
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: red;
+            color: white;
+            padding: 5px;
+            z-index: 9999;
+            font-size: 12px;
         }
 
         .container {
@@ -342,6 +355,11 @@
 
         /* TV Display Optimizations - Ultra compact for large screens */
         @media (min-width: 1920px) {
+            body::before {
+                content: "1920px+";
+                background: orange;
+            }
+            
             body {
                 padding: 5px;
                 font-size: 14px;
@@ -461,6 +479,11 @@
 
         /* Fire TV 4K Ultra HD specific optimizations */
         @media (min-width: 3840px) {
+            body::before {
+                content: "4K-3840px+";
+                background: green;
+            }
+            
             body {
                 padding: 1px;
                 font-size: 10px;
@@ -576,6 +599,11 @@
 
         /* Additional fallback for any very large screens */
         @media (min-width: 2560px) and (min-height: 1440px) {
+            body::before {
+                content: "ZOOM-2560px+";
+                background: purple;
+            }
+            
             body {
                 zoom: 0.6;
             }
@@ -865,6 +893,7 @@
 
         <div class="footer">
             <p>Last updated: <span id="last-updated"></span></p>
+            <p style="color: red; font-weight: bold;">VERSION: TV-OPTIMIZED-v2.1 - <span id="screen-info"></span></p>
         </div>
     </div>
 
@@ -1166,6 +1195,9 @@
 
         function updateLastUpdated() {
             document.getElementById('last-updated').textContent = new Date().toLocaleString();
+            // Add screen info for debugging
+            document.getElementById('screen-info').textContent = 
+                `${window.innerWidth}x${window.innerHeight} | UA: ${navigator.userAgent.substring(0, 50)}...`;
         }
 
         function displayFallbackMessage() {
