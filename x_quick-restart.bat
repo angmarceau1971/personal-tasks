@@ -2,7 +2,7 @@
 cls
 echo.
 echo ==========================================
-echo    🔄 Quick Server Restart
+echo    🔄 Quick Server Restart --- TEST 2
 echo ==========================================
 echo.
 
