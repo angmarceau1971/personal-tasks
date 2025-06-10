@@ -289,34 +289,104 @@
             }
         }
 
-        /* TV Display Optimizations - Conservative approach */
+        /* TV Display Optimizations - Compact layout to fit more content */
         @media (min-width: 1920px) {
+            body {
+                padding: 10px;
+            }
+            
             .container {
-                max-width: 1800px;
+                max-width: 95%;
+            }
+            
+            .header {
+                margin-bottom: 15px;
             }
             
             .header h1 {
-                font-size: 2.5em;
+                font-size: 1.8em;
+                margin-bottom: 5px;
+            }
+            
+            .header p {
+                font-size: 0.9em;
             }
             
             #current-category {
-                font-size: 3em;
+                font-size: 2em;
+                margin-bottom: 10px;
             }
             
-            .task-title {
-                font-size: 1.1em;
+            .category-card {
+                padding: 15px;
+                width: 95%;
             }
             
-            .task-description {
-                font-size: 1em;
+            .priority-group {
+                margin-bottom: 15px;
             }
             
             .priority-group-header {
-                font-size: 1.3em;
+                font-size: 1em;
+                margin-bottom: 8px;
+                padding: 6px 10px;
+            }
+            
+            .priority-tasks-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 8px;
+                margin-top: 8px;
+            }
+            
+            .task-item {
+                padding: 8px;
+                border-radius: 6px;
+            }
+            
+            .task-title {
+                font-size: 0.85em;
+                margin-bottom: 3px;
+            }
+            
+            .task-description {
+                font-size: 0.75em;
+                line-height: 1.2;
+                margin-bottom: 6px;
+            }
+            
+            .priority-badge {
+                padding: 2px 8px;
+                font-size: 0.65em;
+                border-radius: 15px;
             }
             
             .category-title {
-                font-size: 1.5em;
+                font-size: 1.1em;
+            }
+            
+            .task-count {
+                padding: 3px 8px;
+                font-size: 0.7em;
+                border-radius: 15px;
+            }
+            
+            .progress-dot {
+                width: 8px;
+                height: 8px;
+            }
+            
+            .admin-button {
+                padding: 6px 12px;
+                font-size: 0.8em;
+            }
+            
+            .categories-container {
+                margin-bottom: 10px;
+                min-height: 75vh;
+            }
+            
+            .rotation-indicator {
+                margin-bottom: 10px;
             }
         }
 
