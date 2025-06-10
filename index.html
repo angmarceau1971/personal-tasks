@@ -289,104 +289,160 @@
             }
         }
 
-        /* TV Display Optimizations - Compact layout to fit more content */
+        /* TV Display Optimizations - Ultra compact for large screens */
         @media (min-width: 1920px) {
             body {
-                padding: 10px;
+                padding: 5px;
+                font-size: 14px;
             }
             
             .container {
-                max-width: 95%;
+                max-width: 98%;
             }
             
             .header {
-                margin-bottom: 15px;
+                margin-bottom: 8px;
             }
             
             .header h1 {
-                font-size: 1.8em;
-                margin-bottom: 5px;
-            }
-            
-            .header p {
-                font-size: 0.9em;
-            }
-            
-            #current-category {
-                font-size: 2em;
-                margin-bottom: 10px;
-            }
-            
-            .category-card {
-                padding: 15px;
-                width: 95%;
-            }
-            
-            .priority-group {
-                margin-bottom: 15px;
-            }
-            
-            .priority-group-header {
-                font-size: 1em;
-                margin-bottom: 8px;
-                padding: 6px 10px;
-            }
-            
-            .priority-tasks-grid {
-                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                gap: 8px;
-                margin-top: 8px;
-            }
-            
-            .task-item {
-                padding: 8px;
-                border-radius: 6px;
-            }
-            
-            .task-title {
-                font-size: 0.85em;
+                font-size: 1.4em;
                 margin-bottom: 3px;
             }
             
-            .task-description {
-                font-size: 0.75em;
-                line-height: 1.2;
-                margin-bottom: 6px;
-            }
-            
-            .priority-badge {
-                padding: 2px 8px;
-                font-size: 0.65em;
-                border-radius: 15px;
-            }
-            
-            .category-title {
-                font-size: 1.1em;
-            }
-            
-            .task-count {
-                padding: 3px 8px;
-                font-size: 0.7em;
-                border-radius: 15px;
-            }
-            
-            .progress-dot {
-                width: 8px;
-                height: 8px;
-            }
-            
-            .admin-button {
-                padding: 6px 12px;
+            .header p {
                 font-size: 0.8em;
             }
             
+            #current-category {
+                font-size: 1.6em;
+                margin-bottom: 5px;
+            }
+            
+            .category-card {
+                padding: 8px;
+                width: 98%;
+            }
+            
+            .priority-group {
+                margin-bottom: 8px;
+            }
+            
+            .priority-group-header {
+                font-size: 0.9em;
+                margin-bottom: 4px;
+                padding: 4px 8px;
+            }
+            
+            .priority-tasks-grid {
+                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+                gap: 4px;
+                margin-top: 4px;
+            }
+            
+            .task-item {
+                padding: 6px;
+                border-radius: 4px;
+            }
+            
+            .task-title {
+                font-size: 0.8em;
+                margin-bottom: 2px;
+                line-height: 1.1;
+            }
+            
+            .task-description {
+                font-size: 0.7em;
+                line-height: 1.1;
+                margin-bottom: 4px;
+            }
+            
+            .priority-badge {
+                padding: 1px 6px;
+                font-size: 0.6em;
+                border-radius: 10px;
+            }
+            
+            .category-title {
+                font-size: 1em;
+            }
+            
+            .task-count {
+                padding: 2px 6px;
+                font-size: 0.65em;
+                border-radius: 10px;
+            }
+            
+            .progress-dot {
+                width: 6px;
+                height: 6px;
+            }
+            
+            .admin-button {
+                padding: 4px 8px;
+                font-size: 0.7em;
+            }
+            
             .categories-container {
-                margin-bottom: 10px;
-                min-height: 75vh;
+                margin-bottom: 5px;
+                min-height: 85vh;
             }
             
             .rotation-indicator {
-                margin-bottom: 10px;
+                margin-bottom: 5px;
+            }
+            
+            .category-progress {
+                gap: 4px;
+                margin-top: 5px;
+            }
+        }
+
+        /* Fire TV 4K Ultra HD specific optimizations */
+        @media (min-width: 3840px) {
+            body {
+                padding: 3px;
+                font-size: 12px;
+            }
+            
+            .header h1 {
+                font-size: 1.2em;
+            }
+            
+            #current-category {
+                font-size: 1.4em;
+            }
+            
+            .priority-tasks-grid {
+                grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+                gap: 3px;
+            }
+            
+            .task-item {
+                padding: 4px;
+            }
+            
+            .task-title {
+                font-size: 0.75em;
+                margin-bottom: 1px;
+            }
+            
+            .task-description {
+                font-size: 0.65em;
+                margin-bottom: 3px;
+            }
+            
+            .priority-group-header {
+                font-size: 0.85em;
+                padding: 3px 6px;
+                margin-bottom: 3px;
+            }
+            
+            .category-card {
+                padding: 6px;
+            }
+            
+            .categories-container {
+                min-height: 90vh;
             }
         }
 
