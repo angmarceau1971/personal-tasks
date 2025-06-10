@@ -22,6 +22,12 @@
             max-width: 1200px;
             margin: 0 auto;
         }
+        
+        @media (min-width: 1920px) {
+            .container {
+                max-width: 1600px;
+            }
+        }
 
         .header {
             text-align: center;
@@ -284,6 +290,144 @@
         @media (min-width: 1600px) {
             .priority-tasks-grid {
                 grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            }
+        }
+
+        /* Large TV Display Optimizations */
+        @media (min-width: 2560px) {
+            .container {
+                max-width: 90%;
+                padding: 0 5%;
+            }
+            
+            .header h1 {
+                font-size: 4em;
+                margin-bottom: 15px;
+            }
+            
+            .header p {
+                font-size: 1.8em;
+            }
+            
+            #current-category {
+                font-size: 5em;
+                margin-bottom: 20px;
+            }
+            
+            .category-card {
+                padding: 40px;
+                border-radius: 20px;
+            }
+            
+            .priority-group-header {
+                font-size: 2em;
+                padding: 15px 20px;
+                margin-bottom: 20px;
+            }
+            
+            .priority-tasks-grid {
+                grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+                gap: 25px;
+                margin-top: 20px;
+            }
+            
+            .task-item {
+                padding: 25px;
+                border-radius: 15px;
+                border-left-width: 6px;
+            }
+            
+            .task-title {
+                font-size: 1.6em;
+                margin-bottom: 10px;
+            }
+            
+            .task-description {
+                font-size: 1.3em;
+                line-height: 1.4;
+                margin-bottom: 15px;
+            }
+            
+            .priority-badge {
+                padding: 8px 20px;
+                font-size: 1.1em;
+                border-radius: 25px;
+            }
+            
+            .category-title {
+                font-size: 2.2em;
+            }
+            
+            .task-count {
+                padding: 10px 20px;
+                font-size: 1.3em;
+                border-radius: 30px;
+            }
+            
+            .progress-dot {
+                width: 20px;
+                height: 20px;
+            }
+            
+            .admin-button {
+                padding: 15px 30px;
+                font-size: 1.4em;
+                border-radius: 10px;
+            }
+        }
+
+        /* Ultra-wide 4K+ TV displays */
+        @media (min-width: 3840px) {
+            .header h1 {
+                font-size: 5em;
+            }
+            
+            .header p {
+                font-size: 2.2em;
+            }
+            
+            #current-category {
+                font-size: 6em;
+            }
+            
+            .priority-group-header {
+                font-size: 2.5em;
+                padding: 20px 25px;
+            }
+            
+            .priority-tasks-grid {
+                grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+                gap: 35px;
+            }
+            
+            .task-item {
+                padding: 35px;
+                border-radius: 20px;
+            }
+            
+            .task-title {
+                font-size: 2em;
+                margin-bottom: 15px;
+            }
+            
+            .task-description {
+                font-size: 1.6em;
+                line-height: 1.5;
+                margin-bottom: 20px;
+            }
+            
+            .priority-badge {
+                padding: 12px 25px;
+                font-size: 1.3em;
+            }
+            
+            .category-title {
+                font-size: 2.8em;
+            }
+            
+            .task-count {
+                padding: 12px 25px;
+                font-size: 1.5em;
             }
         }
 
