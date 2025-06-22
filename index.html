@@ -19,25 +19,11 @@
             padding: 20px;
         }
         
-        body::before {
-            content: "DEFAULT";
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            background: red;
-            color: white;
-            padding: 5px;
-            z-index: 9999;
-            font-size: 12px;
-        }
-
         .container {
             max-width: 1200px;
             margin: 0 auto;
         }
         
-
-
         .header {
             text-align: center;
             margin-bottom: 25px;
@@ -143,24 +129,7 @@
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
 
-        .category-progress {
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-            margin-top: 10px;
-        }
 
-        .progress-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.3);
-            transition: background 0.3s ease;
-        }
-
-        .progress-dot.active {
-            background: white;
-        }
 
         .category-navigation {
             display: flex;
@@ -278,8 +247,6 @@
             margin-bottom: 8px;
         }
 
-
-
         .priority-badge {
             padding: 3px 10px;
             border-radius: 20px;
@@ -350,262 +317,6 @@
         @media (min-width: 1600px) {
             .priority-tasks-grid {
                 grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            }
-        }
-
-        /* Fire TV and Large Display Detection - Multiple approaches */
-        @media (min-width: 1280px), (min-device-width: 1920px), (-webkit-min-device-pixel-ratio: 2) {
-            body::before {
-                content: "TV-DETECTED";
-                background: orange;
-            }
-            
-            body {
-                padding: 5px;
-                font-size: 14px;
-            }
-            
-            .container {
-                max-width: 98%;
-            }
-            
-            .header {
-                margin-bottom: 8px;
-            }
-            
-            .header h1 {
-                font-size: 1.4em;
-                margin-bottom: 3px;
-            }
-            
-            .header p {
-                font-size: 0.8em;
-            }
-            
-            #current-category {
-                font-size: 1.6em;
-                margin-bottom: 5px;
-            }
-            
-            .category-card {
-                padding: 8px;
-                width: 98%;
-            }
-            
-            .priority-group {
-                margin-bottom: 8px;
-            }
-            
-            .priority-group-header {
-                font-size: 0.9em;
-                margin-bottom: 4px;
-                padding: 4px 8px;
-            }
-            
-            .priority-tasks-grid {
-                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-                gap: 4px;
-                margin-top: 4px;
-            }
-            
-            .task-item {
-                padding: 6px;
-                border-radius: 4px;
-            }
-            
-            .task-title {
-                font-size: 0.8em;
-                margin-bottom: 2px;
-                line-height: 1.1;
-            }
-            
-            .task-description {
-                font-size: 0.7em;
-                line-height: 1.1;
-                margin-bottom: 4px;
-            }
-            
-            .priority-badge {
-                padding: 1px 6px;
-                font-size: 0.6em;
-                border-radius: 10px;
-            }
-            
-            .category-title {
-                font-size: 1em;
-            }
-            
-            .task-count {
-                padding: 2px 6px;
-                font-size: 0.65em;
-                border-radius: 10px;
-            }
-            
-            .progress-dot {
-                width: 6px;
-                height: 6px;
-            }
-            
-            .admin-button {
-                padding: 4px 8px;
-                font-size: 0.7em;
-            }
-            
-            .categories-container {
-                margin-bottom: 5px;
-                min-height: 85vh;
-            }
-            
-            .rotation-indicator {
-                margin-bottom: 5px;
-            }
-            
-            .category-progress {
-                gap: 4px;
-                margin-top: 5px;
-            }
-            
-            .category-navigation {
-                margin: 5px 0;
-                gap: 4px;
-            }
-            
-            .category-nav-btn {
-                padding: 3px 8px;
-                font-size: 0.7em;
-                border-radius: 12px;
-            }
-        }
-
-        /* Fire TV 4K Ultra HD specific optimizations */
-        @media (min-width: 3840px) {
-            body::before {
-                content: "4K-3840px+";
-                background: green;
-            }
-            
-            body {
-                padding: 1px;
-                font-size: 10px;
-                overflow: hidden;
-            }
-            
-            .container {
-                max-width: 99%;
-                padding: 0;
-            }
-            
-            .header {
-                margin-bottom: 2px;
-            }
-            
-            .header h1 {
-                font-size: 1em;
-                margin-bottom: 1px;
-            }
-            
-            .header p {
-                font-size: 0.6em;
-            }
-            
-            #current-category {
-                font-size: 1.1em;
-                margin-bottom: 2px;
-            }
-            
-            .priority-tasks-grid {
-                grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-                gap: 2px;
-            }
-            
-            .task-item {
-                padding: 2px;
-                border-radius: 2px;
-            }
-            
-            .task-title {
-                font-size: 0.7em;
-                margin-bottom: 1px;
-                line-height: 1;
-            }
-            
-            .task-description {
-                font-size: 0.6em;
-                margin-bottom: 2px;
-                line-height: 1;
-            }
-            
-            .priority-group {
-                margin-bottom: 3px;
-            }
-            
-            .priority-group-header {
-                font-size: 0.75em;
-                padding: 2px 4px;
-                margin-bottom: 2px;
-            }
-            
-            .category-card {
-                padding: 3px;
-                width: 99%;
-            }
-            
-            .categories-container {
-                min-height: 95vh;
-                margin-bottom: 1px;
-            }
-            
-            .rotation-indicator {
-                margin-bottom: 2px;
-            }
-            
-            .category-navigation {
-                margin: 1px 0;
-                gap: 2px;
-            }
-            
-            .category-nav-btn {
-                padding: 1px 4px;
-                font-size: 0.6em;
-                border-radius: 8px;
-            }
-            
-            .priority-badge {
-                padding: 0px 3px;
-                font-size: 0.5em;
-                border-radius: 6px;
-            }
-            
-            .category-title {
-                font-size: 0.8em;
-            }
-            
-            .task-count {
-                padding: 1px 3px;
-                font-size: 0.5em;
-                border-radius: 6px;
-            }
-            
-            .category-progress {
-                gap: 2px;
-                margin-top: 2px;
-            }
-            
-            .progress-dot {
-                width: 4px;
-                height: 4px;
-            }
-        }
-
-        /* Additional fallback for any very large screens */
-        @media (min-width: 2560px) and (min-height: 1440px) {
-            body::before {
-                content: "ZOOM-2560px+";
-                background: purple;
-            }
-            
-            body {
-                zoom: 0.6;
             }
         }
 
@@ -877,9 +588,6 @@
 
         <div class="rotation-indicator">
             <div id="current-category">Loading...</div>
-            <div class="category-progress" id="category-progress">
-                <!-- Progress dots will be added here -->
-            </div>
         </div>
 
         <!-- Category Navigation Buttons -->
@@ -893,7 +601,6 @@
 
         <div class="footer">
             <p>Last updated: <span id="last-updated"></span></p>
-            <p style="color: red; font-weight: bold;">VERSION: TV-OPTIMIZED-v2.1 - <span id="screen-info"></span></p>
         </div>
     </div>
 
@@ -951,7 +658,6 @@
     <script>
         let allCategories = [];
         let currentCategoryIndex = 0;
-        let rotationInterval;
 
         async function loadTasks() {
             try {
@@ -966,7 +672,7 @@
                 
                 const data = await response.json();
                 console.log('Tasks loaded successfully:', data);
-                setupRotatingDashboard(data.categories);
+                setupDashboard(data.categories);
             } catch (error) {
                 console.error('Error loading tasks:', error);
                 // Fallback for when running locally without a server
@@ -974,8 +680,8 @@
             }
         }
 
-        function setupRotatingDashboard(categories) {
-            console.log('Setting up rotating dashboard with categories:', categories);
+        function setupDashboard(categories) {
+            console.log('Setting up dashboard with categories:', categories);
             
             // Filter and prepare categories
             allCategories = Object.entries(categories)
@@ -999,15 +705,11 @@
             // Create all category cards
             createAllCategoryCards();
             
-            // Setup progress indicators
-            setupProgressIndicators();
-            
             // Setup navigation buttons
             setupNavigationButtons();
             
-            // Start rotation
+            // Show first category
             showCategory(0);
-            startRotation();
             
             updateLastUpdated();
         }
@@ -1088,18 +790,6 @@
             `;
         }
 
-        function setupProgressIndicators() {
-            const progressContainer = document.getElementById('category-progress');
-            progressContainer.innerHTML = '';
-
-            allCategories.forEach((category, index) => {
-                const dot = document.createElement('div');
-                dot.className = 'progress-dot';
-                dot.id = `dot-${index}`;
-                progressContainer.appendChild(dot);
-            });
-        }
-
         function showCategory(index) {
             // Hide all categories
             document.querySelectorAll('.category-card').forEach(card => {
@@ -1110,16 +800,6 @@
             const currentCard = document.getElementById(`category-${index}`);
             if (currentCard) {
                 currentCard.classList.add('active');
-            }
-
-            // Update progress dots
-            document.querySelectorAll('.progress-dot').forEach(dot => {
-                dot.classList.remove('active');
-            });
-            
-            const currentDot = document.getElementById(`dot-${index}`);
-            if (currentDot) {
-                currentDot.classList.add('active');
             }
 
             // Update category name
@@ -1151,15 +831,8 @@
                 }
                 
                 button.addEventListener('click', () => {
-                    // Clear rotation when user manually selects
-                    clearInterval(rotationInterval);
                     showCategory(index);
                     updateNavigationButtons(index);
-                    
-                    // Restart rotation after 15 seconds of inactivity
-                    setTimeout(() => {
-                        startRotation();
-                    }, 15000);
                 });
                 
                 navContainer.appendChild(button);
@@ -1177,27 +850,10 @@
             });
         }
 
-        function startRotation() {
-            // Clear any existing interval
-            if (rotationInterval) {
-                clearInterval(rotationInterval);
-            }
-
-            // Rotate every 10 seconds
-            rotationInterval = setInterval(() => {
-                const nextIndex = (currentCategoryIndex + 1) % allCategories.length;
-                showCategory(nextIndex);
-                updateNavigationButtons(nextIndex);
-            }, 10000);
-        }
-
 
 
         function updateLastUpdated() {
             document.getElementById('last-updated').textContent = new Date().toLocaleString();
-            // Add screen info for debugging
-            document.getElementById('screen-info').textContent = 
-                `${window.innerWidth}x${window.innerHeight} | UA: ${navigator.userAgent.substring(0, 50)}...`;
         }
 
         function displayFallbackMessage() {
@@ -1236,19 +892,11 @@
                 rotationIndicator.style.display = 'none';
                 categoriesContainer.style.display = 'none';
                 
-                // Stop rotation when in admin mode
-                if (rotationInterval) {
-                    clearInterval(rotationInterval);
-                }
-                
                 loadAdminTasks();
             } else {
                 adminPanel.classList.remove('active');
                 rotationIndicator.style.display = 'block';
                 categoriesContainer.style.display = 'flex';
-                
-                // Restart rotation when leaving admin mode
-                startRotation();
                 
                 // Reload main dashboard
                 loadTasks();
@@ -1458,52 +1106,9 @@
             }
         }
 
-        // Auto-scaling for large displays to prevent scrolling
-        function autoScaleForTVDisplay() {
-            // More aggressive TV detection
-            const isLargeScreen = window.innerWidth >= 1280 || 
-                                 window.screen.width >= 1920 || 
-                                 window.devicePixelRatio >= 2 ||
-                                 navigator.userAgent.includes('AFTT') || // Fire TV
-                                 navigator.userAgent.includes('AFTM'); // Fire TV Stick
-            
-            console.log('TV Detection:', {
-                innerWidth: window.innerWidth,
-                innerHeight: window.innerHeight,
-                screenWidth: window.screen.width,
-                screenHeight: window.screen.height,
-                devicePixelRatio: window.devicePixelRatio,
-                userAgent: navigator.userAgent,
-                isLargeScreen: isLargeScreen
-            });
-            
-            if (isLargeScreen) {
-                setTimeout(() => {
-                    const body = document.body;
-                    const viewportHeight = window.innerHeight;
-                    const contentHeight = body.scrollHeight;
-                    
-                    console.log(`TV Display detected: ${window.innerWidth}x${window.innerHeight}`);
-                    console.log(`Content height: ${contentHeight}, Viewport height: ${viewportHeight}`);
-                    
-                    // If content is taller than viewport, apply scaling
-                    if (contentHeight > viewportHeight) {
-                        const scale = Math.max(0.5, viewportHeight / contentHeight * 0.95);
-                        console.log(`Applying scale: ${scale}`);
-                        body.style.transform = `scale(${scale})`;
-                        body.style.transformOrigin = 'top left';
-                        body.style.width = `${100 / scale}%`;
-                        body.style.height = `${100 / scale}%`;
-                        body.style.overflow = 'hidden';
-                    }
-                }, 2000); // Wait for content to fully load
-            }
-        }
-
         // Load tasks when page loads
         window.addEventListener('load', () => {
             loadTasks();
-            autoScaleForTVDisplay();
         });
 
         // Refresh tasks every 60 seconds (longer since we have rotation)
