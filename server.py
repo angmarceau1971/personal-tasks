@@ -64,8 +64,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         """Handle GET requests including admin endpoints"""
         if self.path == '/api/tasks':
             self.handle_get_all_tasks()
-        elif self.path.startswith('/tasks-config.json'):
-            self.handle_get_config_json()
+        elif self.path == '/api/categories':
+            self.handle_get_categories()
         elif self.path == '/api/migrate':
             self.handle_migration()
         else:
@@ -183,10 +183,10 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         except Exception as e:
             print(f"Error during migration: {e}")
 
-    def handle_get_config_json(self):
-        """Serve tasks in JSON format for frontend compatibility"""
+    def handle_get_categories(self):
+        """API endpoint to get all categories with their tasks from Firestore"""
         try:
-            print("Starting handle_get_config_json")
+            print("Starting handle_get_categories")
             categories = self.get_categories_from_firestore()
             
             # If Firestore fails, try JSON file as fallback

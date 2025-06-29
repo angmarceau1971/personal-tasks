@@ -661,10 +661,9 @@
 
         async function loadTasks() {
             try {
-                // Add cache-busting timestamp to ensure fresh data
-                const timestamp = new Date().getTime();
-                console.log('Attempting to load tasks...');
-                const response = await fetch(`tasks-config.json?v=${timestamp}`);
+                // Load from proper API endpoint
+                console.log('Loading tasks from API...');
+                const response = await fetch('/api/categories');
                 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -675,7 +674,6 @@
                 setupDashboard(data.categories);
             } catch (error) {
                 console.error('Error loading tasks:', error);
-                // Fallback for when running locally without a server
                 displayFallbackMessage();
             }
         }
@@ -861,12 +859,9 @@
             container.innerHTML = `
                 <div class="category-card active" style="text-align: center; padding: 40px;">
                     <h3>Unable to load tasks</h3>
-                    <p>Please make sure you're running this with a local server or check the tasks-config.json file.</p>
+                    <p>There was an error connecting to the task database. Please check your internet connection or try refreshing the page.</p>
                     <p style="margin-top: 20px; font-size: 0.9em; color: #666;">
-                        To run with a server, use: <code>python server.py</code> (now on port 8081)
-                    </p>
-                    <p style="margin-top: 10px; font-size: 0.8em; color: #999;">
-                        Navigate to: <a href="http://localhost:8081" style="color: #667eea;">http://localhost:8081</a>
+                        If the problem persists, the server may be temporarily unavailable.
                     </p>
                 </div>
             `;
@@ -957,8 +952,7 @@
         // Load available categories
         async function loadAvailableCategories() {
             try {
-                const timestamp = new Date().getTime();
-                const response = await fetch(`tasks-config.json?v=${timestamp}`);
+                const response = await fetch('/api/categories');
                 if (!response.ok) {
                     throw new Error('Failed to load categories');
                 }
