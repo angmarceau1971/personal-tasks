@@ -186,8 +186,32 @@ class Handler(http.server.SimpleHTTPRequestHandler):
     def handle_get_config_json(self):
         """Serve tasks in JSON format for frontend compatibility"""
         try:
+            print("Starting handle_get_config_json")
             categories = self.get_categories_from_firestore()
+            
+            # If Firestore fails, try JSON file as fallback
+            if not categories:
+                print("Firestore returned empty, trying JSON fallback")
+                categories = self.load_config_from_json()
+            
+            # If still empty, create a minimal structure to prevent errors
+            if not categories:
+                print("No data found, creating minimal structure")
+                categories = {
+                    "No Data": {
+                        "color": "#666666",
+                        "tasks": [{
+                            "id": 1,
+                            "title": "Migration needed",
+                            "description": "Run /api/migrate to import your data",
+                            "priority": "high",
+                            "status": "Open"
+                        }]
+                    }
+                }
+            
             config = {"categories": categories}
+            print(f"Serving config with {len(categories)} categories")
             
             self.send_response(200)
             self.send_header('Content-Type', 'application/json')
@@ -198,7 +222,29 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             
         except Exception as e:
             print(f"Error serving config JSON: {e}")
-            self.send_error(500)
+            # Send a valid JSON error response instead of HTML
+            try:
+                self.send_response(200)  # Send 200 to avoid browser errors
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                
+                error_config = {
+                    "categories": {
+                        "Error": {
+                            "color": "#ff0000",
+                            "tasks": [{
+                                "id": 1,
+                                "title": "Error loading data",
+                                "description": f"Server error: {str(e)}",
+                                "priority": "high",
+                                "status": "Open"
+                            }]
+                        }
+                    }
+                }
+                self.wfile.write(json.dumps(error_config, ensure_ascii=False).encode('utf-8'))
+            except:
+                self.send_error(500)
 
     def handle_migration(self):
         """Handle migration request via HTTP"""
