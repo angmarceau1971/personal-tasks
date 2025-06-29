@@ -365,9 +365,10 @@
 
         .admin-controls {
             display: flex;
-            gap: 10px;
+            gap: 15px;
             margin-bottom: 20px;
             flex-wrap: wrap;
+            align-items: center;
         }
 
         .add-task-btn {
@@ -382,6 +383,33 @@
 
         .add-task-btn:hover {
             background: #45a049;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-label {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.9em;
+        }
+
+        .filter-select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9em;
+            background: white;
+            cursor: pointer;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: #4caf50;
+            box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
         }
 
         .admin-table {
@@ -565,6 +593,15 @@
             
             <div class="admin-controls">
                 <button class="add-task-btn" onclick="openAddTaskModal()">➕ Add New Task</button>
+                <div class="filter-group">
+                    <label for="status-filter" class="filter-label">Filter by Status:</label>
+                    <select id="status-filter" class="filter-select" onchange="filterTasks()">
+                        <option value="all">All Statuses</option>
+                        <option value="Open">Open</option>
+                        <option value="Closed">Closed</option>
+                        <option value="Closed-Hide">Closed-Hide</option>
+                    </select>
+                </div>
             </div>
             
             <div class="admin-table-container">
@@ -874,6 +911,7 @@
         let isAdminMode = false;
         let currentEditTaskId = null;
         let availableCategories = {};
+        let allTasks = []; // Store all tasks for filtering
 
         // Admin mode toggle
         function toggleAdminMode() {
@@ -907,15 +945,30 @@
                 }
                 
                 const data = await response.json();
-                populateAdminTable(data.tasks);
+                allTasks = data.tasks; // Store all tasks for filtering
+                populateAdminTable(allTasks);
                 
                 // Load categories for the modal
                 loadAvailableCategories();
             } catch (error) {
                 console.error('Error loading admin tasks:', error);
+                allTasks = [];
                 document.getElementById('admin-table-body').innerHTML = 
                     '<tr><td colspan="6" style="text-align: center; color: #999;">Error loading tasks</td></tr>';
             }
+        }
+
+        // Filter tasks based on status
+        function filterTasks() {
+            const statusFilter = document.getElementById('status-filter').value;
+            
+            let filteredTasks = allTasks;
+            
+            if (statusFilter !== 'all') {
+                filteredTasks = allTasks.filter(task => task.status === statusFilter);
+            }
+            
+            populateAdminTable(filteredTasks);
         }
 
         // Populate admin table
@@ -923,7 +976,9 @@
             const tbody = document.getElementById('admin-table-body');
             
             if (tasks.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #999;">No tasks found</td></tr>';
+                const statusFilter = document.getElementById('status-filter')?.value || 'all';
+                const message = statusFilter === 'all' ? 'No tasks found' : `No tasks with status "${statusFilter}"`;
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #999;">${message}</td></tr>`;
                 return;
             }
             
@@ -1026,8 +1081,9 @@
                     throw new Error('Failed to delete task');
                 }
                 
-                // Reload admin table
-                loadAdminTasks();
+                // Reload admin table and maintain filter
+                await loadAdminTasks();
+                filterTasks();
             } catch (error) {
                 console.error('Error deleting task:', error);
                 alert('Error deleting task');
@@ -1078,7 +1134,8 @@
                 }
                 
                 closeTaskModal();
-                loadAdminTasks();
+                await loadAdminTasks();
+                filterTasks();
             } catch (error) {
                 console.error('Error saving task:', error);
                 alert('Error saving task');
