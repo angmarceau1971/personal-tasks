@@ -92,6 +92,11 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             for task_doc in all_task_docs:
                 task_data = task_doc.to_dict()
                 task_data['id'] = int(task_doc.id)  # Ensure ID is integer
+                
+                # Remove Firestore timestamps that can't be JSON serialized
+                task_data.pop('created_at', None)
+                task_data.pop('updated_at', None)
+                
                 category = task_data.get('category', 'Unknown')
                 
                 if category not in tasks_by_category:
@@ -354,6 +359,10 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 task_data = task_doc.to_dict()
                 task_data['id'] = int(task_doc.id)
                 
+                # Remove Firestore timestamps that can't be JSON serialized
+                task_data.pop('created_at', None)
+                task_data.pop('updated_at', None)
+                
                 # Add category color
                 category_name = task_data.get('category', '')
                 category_color = '#666666'
@@ -417,9 +426,16 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             task_ref = self.db.collection('tasks').document(str(new_id))
             task_ref.set(new_task_data)
 
-            # Return the created task
-            new_task_data['id'] = new_id
-            self.send_json_response({"success": True, "task": new_task_data}, 201)
+            # Return the created task (without timestamps for JSON compatibility)
+            response_task = {
+                'id': new_id,
+                'title': new_task_data['title'],
+                'description': new_task_data['description'],
+                'priority': new_task_data['priority'],
+                'status': new_task_data['status'],
+                'category': new_task_data['category']
+            }
+            self.send_json_response({"success": True, "task": response_task}, 201)
 
         except Exception as e:
             print(f"Error adding task: {e}")
