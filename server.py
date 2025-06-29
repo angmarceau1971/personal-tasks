@@ -74,25 +74,37 @@ class Handler(http.server.SimpleHTTPRequestHandler):
     def get_categories_from_firestore(self):
         """Get all categories and their tasks from Firestore"""
         try:
+            print("Getting categories from Firestore...")
             categories = {}
             
-            # Get all categories
+            # Get all categories with timeout protection
             categories_ref = self.db.collection('categories')
-            category_docs = categories_ref.stream()
+            category_docs = list(categories_ref.stream())
+            print(f"Found {len(category_docs)} categories")
             
+            # Get all tasks at once (more efficient)
+            tasks_ref = self.db.collection('tasks')
+            all_task_docs = list(tasks_ref.stream())
+            print(f"Found {len(all_task_docs)} tasks")
+            
+            # Group tasks by category
+            tasks_by_category = {}
+            for task_doc in all_task_docs:
+                task_data = task_doc.to_dict()
+                task_data['id'] = int(task_doc.id)  # Ensure ID is integer
+                category = task_data.get('category', 'Unknown')
+                
+                if category not in tasks_by_category:
+                    tasks_by_category[category] = []
+                tasks_by_category[category].append(task_data)
+            
+            # Build categories structure
             for category_doc in category_docs:
                 category_data = category_doc.to_dict()
                 category_name = category_doc.id
                 
                 # Get tasks for this category
-                tasks_ref = self.db.collection('tasks').where('category', '==', category_name)
-                task_docs = tasks_ref.stream()
-                
-                tasks = []
-                for task_doc in task_docs:
-                    task_data = task_doc.to_dict()
-                    task_data['id'] = int(task_doc.id)  # Ensure ID is integer
-                    tasks.append(task_data)
+                tasks = tasks_by_category.get(category_name, [])
                 
                 # Sort tasks by ID
                 tasks.sort(key=lambda x: x.get('id', 0))
@@ -102,12 +114,13 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                     'tasks': tasks
                 }
             
+            print(f"Successfully built {len(categories)} categories")
             return categories
             
         except Exception as e:
             print(f"Error getting categories from Firestore: {e}")
-            # Fallback to JSON file if Firestore fails
-            return self.load_config_from_json()
+            # Fallback to empty structure
+            return {}
 
     def load_config_from_json(self):
         """Load the tasks configuration from JSON file (fallback/migration)"""
