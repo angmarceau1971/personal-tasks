@@ -3,6 +3,7 @@
 Simple HTTP server for the Task Dashboard
 Runs on port 8081 to avoid conflicts with other services on port 8080
 Includes admin API endpoints for task management
+Uses Google Cloud Firestore for persistent data storage
 """
 
 import http.server
@@ -13,11 +14,19 @@ import json
 import urllib.parse
 from pathlib import Path
 
+# Google Cloud Firestore
+from google.cloud import firestore
+
 # Use PORT environment variable if available (for Cloud Run), otherwise default to 8081
 PORT = int(os.environ.get('PORT', 8081))
-CONFIG_FILE = "tasks-config.json"
+CONFIG_FILE = "tasks-config.json"  # For initial migration only
 
 class Handler(http.server.SimpleHTTPRequestHandler):
+    def __init__(self, *args, **kwargs):
+        # Initialize Firestore client
+        self.db = firestore.Client()
+        super().__init__(*args, **kwargs)
+
     def end_headers(self):
         # Enable CORS for local development
         self.send_header('Access-Control-Allow-Origin', '*')
@@ -55,28 +64,126 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         """Handle GET requests including admin endpoints"""
         if self.path == '/api/tasks':
             self.handle_get_all_tasks()
+        elif self.path.startswith('/tasks-config.json'):
+            self.handle_get_config_json()
         else:
             super().do_GET()
 
-    def load_config(self):
-        """Load the tasks configuration from JSON file"""
+    def get_categories_from_firestore(self):
+        """Get all categories and their tasks from Firestore"""
+        try:
+            categories = {}
+            
+            # Get all categories
+            categories_ref = self.db.collection('categories')
+            category_docs = categories_ref.stream()
+            
+            for category_doc in category_docs:
+                category_data = category_doc.to_dict()
+                category_name = category_doc.id
+                
+                # Get tasks for this category
+                tasks_ref = self.db.collection('tasks').where('category', '==', category_name)
+                task_docs = tasks_ref.stream()
+                
+                tasks = []
+                for task_doc in task_docs:
+                    task_data = task_doc.to_dict()
+                    task_data['id'] = int(task_doc.id)  # Ensure ID is integer
+                    tasks.append(task_data)
+                
+                # Sort tasks by ID
+                tasks.sort(key=lambda x: x.get('id', 0))
+                
+                categories[category_name] = {
+                    'color': category_data.get('color', '#666666'),
+                    'tasks': tasks
+                }
+            
+            return categories
+            
+        except Exception as e:
+            print(f"Error getting categories from Firestore: {e}")
+            # Fallback to JSON file if Firestore fails
+            return self.load_config_from_json()
+
+    def load_config_from_json(self):
+        """Load the tasks configuration from JSON file (fallback/migration)"""
         try:
             with open(CONFIG_FILE, 'r', encoding='utf-8') as f:
-                return json.load(f)
+                config = json.load(f)
+                return config.get('categories', {})
         except FileNotFoundError:
-            return {"categories": {}}
+            return {}
         except json.JSONDecodeError:
-            return {"categories": {}}
+            return {}
 
-    def save_config(self, config):
-        """Save the tasks configuration to JSON file"""
+    def migrate_json_to_firestore(self):
+        """One-time migration from JSON to Firestore"""
         try:
-            with open(CONFIG_FILE, 'w', encoding='utf-8') as f:
-                json.dump(config, f, indent=2, ensure_ascii=False)
-            return True
+            # Check if migration is already done
+            categories_ref = self.db.collection('categories')
+            existing_categories = list(categories_ref.limit(1).stream())
+            
+            if existing_categories:
+                print("Migration already completed - Firestore has data")
+                return
+            
+            print("Migrating data from JSON to Firestore...")
+            json_data = self.load_config_from_json()
+            
+            if not json_data:
+                print("No JSON data to migrate")
+                return
+            
+            batch = self.db.batch()
+            
+            for category_name, category_data in json_data.items():
+                # Create category document
+                category_ref = self.db.collection('categories').document(category_name)
+                batch.set(category_ref, {
+                    'color': category_data.get('color', '#666666'),
+                    'created_at': firestore.SERVER_TIMESTAMP
+                })
+                
+                # Create task documents
+                for task in category_data.get('tasks', []):
+                    task_id = str(task.get('id', 1))
+                    task_ref = self.db.collection('tasks').document(task_id)
+                    task_data = {
+                        'title': task.get('title', ''),
+                        'description': task.get('description', ''),
+                        'priority': task.get('priority', 'medium'),
+                        'status': task.get('status', 'Open'),
+                        'category': category_name,
+                        'created_at': firestore.SERVER_TIMESTAMP,
+                        'updated_at': firestore.SERVER_TIMESTAMP
+                    }
+                    batch.set(task_ref, task_data)
+            
+            # Commit the batch
+            batch.commit()
+            print("Migration completed successfully!")
+            
         except Exception as e:
-            print(f"Error saving config: {e}")
-            return False
+            print(f"Error during migration: {e}")
+
+    def handle_get_config_json(self):
+        """Serve tasks in JSON format for frontend compatibility"""
+        try:
+            categories = self.get_categories_from_firestore()
+            config = {"categories": categories}
+            
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.send_header('Cache-Control', 'no-cache')
+            self.end_headers()
+            
+            self.wfile.write(json.dumps(config, ensure_ascii=False).encode('utf-8'))
+            
+        except Exception as e:
+            print(f"Error serving config JSON: {e}")
+            self.send_error(500)
 
     def send_json_response(self, data, status=200):
         """Send a JSON response"""
@@ -100,156 +207,200 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
     def handle_get_all_tasks(self):
         """Get all tasks in a flat structure for admin table"""
-        config = self.load_config()
-        tasks = []
-        
-        for category_name, category_data in config.get("categories", {}).items():
-            category_color = category_data.get("color", "#666666")
-            for task in category_data.get("tasks", []):
-                task_with_category = task.copy()
-                task_with_category["category"] = category_name
-                task_with_category["categoryColor"] = category_color
-                tasks.append(task_with_category)
-        
-        self.send_json_response({"tasks": tasks})
+        try:
+            tasks = []
+            
+            # Get all tasks from Firestore
+            tasks_ref = self.db.collection('tasks')
+            task_docs = tasks_ref.stream()
+            
+            # Get category colors
+            categories = self.get_categories_from_firestore()
+            
+            for task_doc in task_docs:
+                task_data = task_doc.to_dict()
+                task_data['id'] = int(task_doc.id)
+                
+                # Add category color
+                category_name = task_data.get('category', '')
+                category_color = '#666666'
+                if category_name in categories:
+                    category_color = categories[category_name].get('color', '#666666')
+                
+                task_data['categoryColor'] = category_color
+                tasks.append(task_data)
+            
+            # Sort by ID
+            tasks.sort(key=lambda x: x.get('id', 0))
+            
+            self.send_json_response({"tasks": tasks})
+            
+        except Exception as e:
+            print(f"Error getting all tasks: {e}")
+            self.send_json_response({"error": "Failed to load tasks"}, 500)
 
     def handle_add_task(self):
         """Add a new task"""
-        data = self.get_request_body()
-        
-        required_fields = ["title", "description", "priority", "category"]
-        if not all(field in data for field in required_fields):
-            self.send_json_response({"error": "Missing required fields"}, 400)
-            return
+        try:
+            data = self.get_request_body()
+            
+            required_fields = ["title", "description", "priority", "category"]
+            if not all(field in data for field in required_fields):
+                self.send_json_response({"error": "Missing required fields"}, 400)
+                return
 
-        config = self.load_config()
-        
-        # Ensure category exists
-        category = data["category"]
-        if category not in config.get("categories", {}):
-            self.send_json_response({"error": "Category does not exist"}, 400)
-            return
+            # Check if category exists
+            category = data["category"]
+            category_ref = self.db.collection('categories').document(category)
+            if not category_ref.get().exists:
+                self.send_json_response({"error": "Category does not exist"}, 400)
+                return
 
-        # Generate new ID
-        all_ids = []
-        for cat_data in config.get("categories", {}).values():
-            for task in cat_data.get("tasks", []):
-                all_ids.append(task.get("id", 0))
-        
-        new_id = max(all_ids, default=0) + 1
+            # Generate new ID
+            tasks_ref = self.db.collection('tasks')
+            all_tasks = tasks_ref.stream()
+            max_id = 0
+            for task_doc in all_tasks:
+                try:
+                    task_id = int(task_doc.id)
+                    max_id = max(max_id, task_id)
+                except ValueError:
+                    continue
+            
+            new_id = max_id + 1
 
-        # Create new task
-        new_task = {
-            "id": new_id,
-            "title": data["title"],
-            "description": data["description"],
-            "priority": data["priority"],
-            "status": data.get("status", "Open")
-        }
+            # Create new task
+            new_task_data = {
+                "title": data["title"],
+                "description": data["description"],
+                "priority": data["priority"],
+                "status": data.get("status", "Open"),
+                "category": category,
+                "created_at": firestore.SERVER_TIMESTAMP,
+                "updated_at": firestore.SERVER_TIMESTAMP
+            }
 
-        # Add task to category
-        config["categories"][category]["tasks"].append(new_task)
+            # Save to Firestore
+            task_ref = self.db.collection('tasks').document(str(new_id))
+            task_ref.set(new_task_data)
 
-        if self.save_config(config):
-            self.send_json_response({"success": True, "task": new_task}, 201)
-        else:
-            self.send_json_response({"error": "Failed to save task"}, 500)
+            # Return the created task
+            new_task_data['id'] = new_id
+            self.send_json_response({"success": True, "task": new_task_data}, 201)
+
+        except Exception as e:
+            print(f"Error adding task: {e}")
+            self.send_json_response({"error": "Failed to add task"}, 500)
 
     def handle_update_task(self):
         """Update an existing task"""
-        # Extract task ID from URL
-        path_parts = self.path.split('/')
-        if len(path_parts) < 4:
-            self.send_json_response({"error": "Invalid task ID"}, 400)
-            return
-        
         try:
-            task_id = int(path_parts[3])
-        except ValueError:
-            self.send_json_response({"error": "Invalid task ID"}, 400)
-            return
+            # Extract task ID from URL
+            path_parts = self.path.split('/')
+            if len(path_parts) < 4:
+                self.send_json_response({"error": "Invalid task ID"}, 400)
+                return
+            
+            try:
+                task_id = str(int(path_parts[3]))  # Ensure it's a valid integer
+            except ValueError:
+                self.send_json_response({"error": "Invalid task ID"}, 400)
+                return
 
-        data = self.get_request_body()
-        config = self.load_config()
+            data = self.get_request_body()
+            
+            # Get task reference
+            task_ref = self.db.collection('tasks').document(task_id)
+            task_doc = task_ref.get()
+            
+            if not task_doc.exists:
+                self.send_json_response({"error": "Task not found"}, 404)
+                return
 
-        # Find and update task
-        task_found = False
-        for category_name, category_data in config.get("categories", {}).items():
-            for i, task in enumerate(category_data.get("tasks", [])):
-                if task.get("id") == task_id:
-                    # Update task fields
-                    if "title" in data:
-                        task["title"] = data["title"]
-                    if "description" in data:
-                        task["description"] = data["description"]
-                    if "priority" in data:
-                        task["priority"] = data["priority"]
-                    if "status" in data:
-                        task["status"] = data["status"]
-                    
-                    # Handle category change
-                    if "category" in data and data["category"] != category_name:
-                        new_category = data["category"]
-                        if new_category in config["categories"]:
-                            # Remove from old category
-                            category_data["tasks"].pop(i)
-                            # Add to new category
-                            config["categories"][new_category]["tasks"].append(task)
-                    
-                    task_found = True
-                    break
-            if task_found:
-                break
+            # Update task data
+            update_data = {"updated_at": firestore.SERVER_TIMESTAMP}
+            
+            if "title" in data:
+                update_data["title"] = data["title"]
+            if "description" in data:
+                update_data["description"] = data["description"]
+            if "priority" in data:
+                update_data["priority"] = data["priority"]
+            if "status" in data:
+                update_data["status"] = data["status"]
+            if "category" in data:
+                # Verify new category exists
+                category_ref = self.db.collection('categories').document(data["category"])
+                if category_ref.get().exists:
+                    update_data["category"] = data["category"]
 
-        if not task_found:
-            self.send_json_response({"error": "Task not found"}, 404)
-            return
-
-        if self.save_config(config):
+            # Update in Firestore
+            task_ref.update(update_data)
+            
             self.send_json_response({"success": True})
-        else:
-            self.send_json_response({"error": "Failed to save task"}, 500)
+
+        except Exception as e:
+            print(f"Error updating task: {e}")
+            self.send_json_response({"error": "Failed to update task"}, 500)
 
     def handle_delete_task(self):
         """Delete a task"""
-        # Extract task ID from URL
-        path_parts = self.path.split('/')
-        if len(path_parts) < 4:
-            self.send_json_response({"error": "Invalid task ID"}, 400)
-            return
-        
         try:
-            task_id = int(path_parts[3])
-        except ValueError:
-            self.send_json_response({"error": "Invalid task ID"}, 400)
-            return
+            # Extract task ID from URL
+            path_parts = self.path.split('/')
+            if len(path_parts) < 4:
+                self.send_json_response({"error": "Invalid task ID"}, 400)
+                return
+            
+            try:
+                task_id = str(int(path_parts[3]))  # Ensure it's a valid integer
+            except ValueError:
+                self.send_json_response({"error": "Invalid task ID"}, 400)
+                return
 
-        config = self.load_config()
+            # Get task reference
+            task_ref = self.db.collection('tasks').document(task_id)
+            task_doc = task_ref.get()
+            
+            if not task_doc.exists:
+                self.send_json_response({"error": "Task not found"}, 404)
+                return
 
-        # Find and delete task
-        task_found = False
-        for category_data in config.get("categories", {}).values():
-            for i, task in enumerate(category_data.get("tasks", [])):
-                if task.get("id") == task_id:
-                    category_data["tasks"].pop(i)
-                    task_found = True
-                    break
-            if task_found:
-                break
-
-        if not task_found:
-            self.send_json_response({"error": "Task not found"}, 404)
-            return
-
-        if self.save_config(config):
+            # Delete from Firestore
+            task_ref.delete()
+            
             self.send_json_response({"success": True})
-        else:
+
+        except Exception as e:
+            print(f"Error deleting task: {e}")
             self.send_json_response({"error": "Failed to delete task"}, 500)
 
 def main():
     # Change to the directory containing this script
     script_dir = Path(__file__).parent
     os.chdir(script_dir)
+    
+    # Initialize handler and migrate data
+    print("🔥 Initializing Firestore connection...")
+    
+    try:
+        # Create a temporary handler instance to perform migration
+        db = firestore.Client()
+        
+        # Check if migration is needed
+        categories_ref = db.collection('categories')
+        existing_categories = list(categories_ref.limit(1).stream())
+        
+        if not existing_categories:
+            print("🚀 Performing one-time migration from JSON to Firestore...")
+            temp_handler = Handler(None, None, None)
+            temp_handler.migrate_json_to_firestore()
+        else:
+            print("✅ Firestore already contains data")
+            
+    except Exception as e:
+        print(f"⚠️  Warning: Could not connect to Firestore: {e}")
+        print("📝 Make sure you're authenticated with Google Cloud")
     
     with socketserver.TCPServer(("0.0.0.0", PORT), Handler) as httpd:
         # Get the local IP address for network access
@@ -263,8 +414,8 @@ def main():
         print(f"📁 Serving files from: {script_dir}")
         print("💡 To stop the server, press Ctrl+C")
         print()
-        print("📝 To edit tasks, modify the 'tasks-config.json' file")
-        print("🔄 The dashboard will automatically refresh every 60 seconds")
+        print("🔥 Using Google Cloud Firestore for persistent data storage")
+        print("📝 Tasks will persist across deployments and server restarts")
         print("🔧 Admin interface available for managing tasks")
         print()
         print("🏠 Other devices on your network can access via:")

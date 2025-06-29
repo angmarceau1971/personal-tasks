@@ -1,5 +1,8 @@
-# No external dependencies required
-# The task dashboard only uses Python standard library modules:
+# Google Cloud Firestore for persistent data storage
+google-cloud-firestore==2.13.1
+
+# No other external dependencies required
+# The task dashboard uses Python standard library modules:
 # - http.server
 # - socketserver  
 # - json
