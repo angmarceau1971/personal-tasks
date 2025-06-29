@@ -66,6 +66,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self.handle_get_all_tasks()
         elif self.path.startswith('/tasks-config.json'):
             self.handle_get_config_json()
+        elif self.path == '/api/migrate':
+            self.handle_migration()
         else:
             super().do_GET()
 
@@ -184,6 +186,78 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         except Exception as e:
             print(f"Error serving config JSON: {e}")
             self.send_error(500)
+
+    def handle_migration(self):
+        """Handle migration request via HTTP"""
+        try:
+            # Load JSON data first to check what we have
+            json_data = self.load_config_from_json()
+            
+            if not json_data:
+                self.send_json_response({
+                    'success': False, 
+                    'message': 'No JSON data found to migrate',
+                    'error': 'tasks-config.json is empty or missing'
+                }, 400)
+                return
+            
+            # Check existing Firestore data
+            categories_ref = self.db.collection('categories')
+            existing_categories = list(categories_ref.limit(1).stream())
+            
+            if existing_categories:
+                self.send_json_response({
+                    'success': False,
+                    'message': 'Migration already completed',
+                    'info': 'Firestore already contains data. Delete existing data first if you want to re-migrate.'
+                })
+                return
+            
+            # Perform migration
+            batch = self.db.batch()
+            total_tasks = 0
+            
+            for category_name, category_data in json_data.items():
+                # Create category document
+                category_ref = self.db.collection('categories').document(category_name)
+                batch.set(category_ref, {
+                    'color': category_data.get('color', '#666666'),
+                    'created_at': firestore.SERVER_TIMESTAMP
+                })
+                
+                # Create task documents
+                for task in category_data.get('tasks', []):
+                    task_id = str(task.get('id', 1))
+                    task_ref = self.db.collection('tasks').document(task_id)
+                    task_data = {
+                        'title': task.get('title', ''),
+                        'description': task.get('description', ''),
+                        'priority': task.get('priority', 'medium'),
+                        'status': task.get('status', 'Open'),
+                        'category': category_name,
+                        'created_at': firestore.SERVER_TIMESTAMP,
+                        'updated_at': firestore.SERVER_TIMESTAMP
+                    }
+                    batch.set(task_ref, task_data)
+                    total_tasks += 1
+            
+            # Commit the batch
+            batch.commit()
+            
+            self.send_json_response({
+                'success': True,
+                'message': 'Migration completed successfully!',
+                'categories_migrated': len(json_data),
+                'tasks_migrated': total_tasks
+            })
+            
+        except Exception as e:
+            print(f"Error during HTTP migration: {e}")
+            self.send_json_response({
+                'success': False,
+                'message': 'Migration failed',
+                'error': str(e)
+            }, 500)
 
     def send_json_response(self, data, status=200):
         """Send a JSON response"""
